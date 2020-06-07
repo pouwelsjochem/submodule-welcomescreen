@@ -67,13 +67,6 @@ local fontBold = native.newFont("Exo2-Bold", 35)
 local uiTouchesDisabled = false
 local isRetinaEnabled = (platform == "Mac OS X")
 
--- Log analytics when opening URLs
-local function OpenURL(url, tag)
-	local tag = tag or url
-	system.openURL(url)
-	simulator.analytics("welcome", "link", tag)
-end
-
 -- Creating Pointer Location variable to hold all the pointer location data
 -- Need this inorder to disable and enable the mouse pointers
 local g_pointerLocations = {}
@@ -414,7 +407,6 @@ local function onNewProject()
 	if not uiTouchesDisabled then
 		disableTouches()
 		simulator.show( "new" )
-		simulator.analytics("welcome", "button", "New Project")
 		enableTouches()
 	end
 	return true
@@ -427,7 +419,6 @@ local function onOpenProject()
 		-- Launch the actual simulator (open project)
 
 		simulator.show( "open" )
-		simulator.analytics("welcome", "button", "Open Project")
 		enableTouches()
 	end
 	return true
@@ -552,7 +543,7 @@ addHoverObject(copyright2, onHover)
 
 copyright2:addEventListener( "touch", function( event )
 	if event.phase == "ended" then
-		OpenURL("https://solar2d.com/LICENSE.txt", "Term of service")
+		system.openURL("https://solar2d.com/LICENSE.txt")
 	end
 end )
 
@@ -590,7 +581,7 @@ addHoverObject(copyright4, onHover)
 
 copyright4:addEventListener( "touch", function( event )
 	if event.phase == "ended" then
-		OpenURL("https://solar2d.com/PRIVACY_POLICY.txt", "Privacy Policy")
+		system.openURL("https://solar2d.com/PRIVACY_POLICY.txt")
 	end
 end )
 
@@ -829,7 +820,6 @@ function showRecents()
 				local fullURLString = projects[i].fullURLString
 				local function projectOpen()
 					simulator.show( "open", fullURLString)
-					simulator.analytics("welcome", "recents", "open-project-"..tostring(i))
 				end
 
 				-- PROJECT ICONS

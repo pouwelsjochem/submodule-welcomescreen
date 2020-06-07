@@ -10,8 +10,6 @@
 local simulator = {}
 local json = require("json")
 
-function simulator.analytics()
-end
 function simulator.getPreference()
 end
 function simulator.getRecentProjects()
