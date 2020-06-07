@@ -7,7 +7,6 @@
 --
 ------------------------------------------------------------------------------
 
-local widget = require "widget"
 local simErr, simulator = pcall(require, "simulator")
 if not simErr then
 	simulator = require "simulator_stub"
@@ -267,32 +266,15 @@ local footerLine = display.newLine( 34, 649.75, 633.5, 649.75 )
 footerLine:setStrokeColor( unpack(linesColor) )
 footerLine.strokeWidth = 1
 
-local latestNewsLine = display.newLine( 301.5, 488.5, 301.5, 627.5 )
-latestNewsLine:setStrokeColor( unpack(linesColor) )
-latestNewsLine.strokeWidth = 1
-
 -- header rect
 
 local bgTop = display.newRect(halfW, 40, screenW, 80 )
 bgTop:setFillColor(unpack(topBlockBackgroundColor))
 
 -- Corona Logo
-
 local g_coronaLogo = display.newImageRect( "assets/CoronaLogo.png", 144.5, 45.5)
 g_coronaLogo.x = 927 + g_coronaLogo.contentWidth*0.5
 g_coronaLogo.y = 15 + g_coronaLogo.contentHeight*0.5
-
-g_pointerLocations.chrome['coronaLogo'] =
-{
-	cursor = "pointingHand",
-	x = g_coronaLogo.x - g_coronaLogo.contentWidth*0.5,
-	y = g_coronaLogo.y - g_coronaLogo.contentHeight*0.5,
-	width = g_coronaLogo.contentWidth,
-	height = g_coronaLogo.contentHeight,
-}
-simulator.setCursorRect(g_pointerLocations.chrome['coronaLogo'])
-g_coronaLogo:addEventListener("tap", function () OpenURL("https://solar2d.com", "homepage") end)
-
 
 -- Display the Corona version text (build number)
 
@@ -303,58 +285,14 @@ version.anchorX = 1
 version.x = 1071.5
 version.y = 60
 
-g_pointerLocations.chrome['version'] =
-{
-	cursor = "pointingHand",
-	x = version.x - version.contentWidth,
-	y = version.y - version.contentHeight*0.5,
-	width = version.contentWidth,
-	height = version.contentHeight,
-}
-simulator.setCursorRect(g_pointerLocations.chrome['version'])
-version:addEventListener("tap", function () OpenURL("https://github.com/coronalabs/corona/releases", "daily-builds") end)
-
 -- Create tab bar
 
 
 local g_tabBarBase = 80
 local g_currentTab = "tab1"
-local g_browser = {}
-local g_browserFactory = require("browser")
-
-
-local function handleTabBarEvent( newTab )
-
-	local url = ""
-	if newTab == "tab2" then
-		url = "https://docs.coronalabs.com/api"
-	elseif newTab == "tab3" then
-		url = "https://forums.solar2d.com"
-	end
-
-	if newTab == "tab1" and g_currentTab ~= "tab1" then
-		if g_browser[g_currentTab] then
-			g_browser[g_currentTab]:hide()
-		end
-		restoreAllPointers()
-	elseif newTab ~= "tab1" then
-		-- It's a browser tab
-		if g_browser[g_currentTab] then
-			g_browser[g_currentTab]:hide()
-		end
-		if not g_browser[newTab] then
-			g_browser[newTab] = g_browserFactory.create()
-		end
-		removeAllPointers()
-		g_browser[newTab]:show(halfW, halfH + g_tabBarBase/2, display.contentWidth - 8, (display.contentHeight - g_tabBarBase) - 10, url)
-	end
-
-	g_currentTab = newTab
-end
- 
 local function makeTabBar( listener )
 	
-	local tabLabels = {"Projects", "Documentation", "Forums"}
+	local tabLabels = {"Projects"}
 	local tabXs = {66, 230, 410, 551}
 
 	local tabButtons = {}
@@ -364,7 +302,6 @@ local function makeTabBar( listener )
 			tabButtons[i].highlight(selected == i)
 		end
 	end
-
 
 	for i = 1, #tabLabels do
 		local tab = {}
@@ -392,150 +329,12 @@ local function makeTabBar( listener )
 
 		local rc = display.newRect( tabXs[i], 56, highlight.contentWidth+10, 48 )
 		rc.alpha = 0
-		rc.isHitTestable = true
-		rc:addEventListener( "touch", function ( event )
-			if event.phase == "ended" then
-				handleTabBarEvent(tabName)
-				highlightTabs(i)
-			end
-		end )
 
 		tabButtons[#tabButtons+1] = tab
 	end
 	highlightTabs(1)
 end
-
 makeTabBar(handleTabBarEvent)
-
-
------------------------------------------------------------------------------------------
--- QUICK LINKS
------------------------------------------------------------------------------------------
-
-local quickLinks = display.newImageRect("assets/groupLinks.png", 17, 17)
-quickLinks.x = 44
-quickLinks.y = 500
-
-local quickLinksTitle = newRetinaText("Quick Links", quickLinks.x+quickLinks.contentWidth*0.5+5, quickLinks.y, fontSizeSections)
-quickLinksTitle.anchorX = 0
-quickLinksTitle:setFillColor(unpack(textColorNormal))
-
-
-
-
-
-local function setupQuickLinks()
-
-	local quickLinksData = {
-		{
-			x = 34,
-			y = 548,
-			title="Getting Started",
-			link="https://docs.coronalabs.com/guide/programming/index.html?utm_source=simulator", -- Getting Started
-		},
-		{
-			x = 34,
-			y = 585,
-			title="Developer Guides",
-			link="https://docs.coronalabs.com/guide/index.html?utm_source=simulator",    -- Learn
-		},
-		{
-			x = 34,
-			y = 622,
-			title="Samples",
-			link="https://coronalabs.com/resources/tutorials/sample-code/?utm_source=simulator",  -- samples
-			simShow = "sampleCode",
-		},
-		{
-			x = 162,
-			y = 548,
-			title="Demos",
-			link="https://docs.coronalabs.com/guide/programming/index.html?utm_source=simulator#demo-projects", -- Demos
-		},
-		{
-			x = 162,
-			y = 585,
-			title="Ads / Monetization",
-			link="https://docs.coronalabs.com/guide/monetization/monetization/?utm_source=simulator", -- Corona Ads
-		},
-		{
-			x = 162,
-			y = 622,
-			title="Request a Feature",
-			link="https://github.com/coronalabs/corona/issues", -- Request a Feature
-		},
-	}
-
-	-- onRelease Event Listeners for Links
-	local function onQuickLink(link)
-		if not uiTouchesDisabled then
-			disableTouches()
-			if link.simShow then
-				simulator.show( link.simShow )
-				simulator.analytics("welcome", "link", link.title)
-			else
-				OpenURL( link.link, link.title )
-			end
-			timer.performWithDelay( 500, enableTouches )
-		end
-		return true
-	end
-
-	for i = 1, #quickLinksData do
-
-		local link = quickLinksData[i]
-
-		local quickLinkBtn = newRetinaText(link.title, link.x, link.y, fontSizeLinkAndNews)
-		quickLinkBtn:setFillColor( unpack(textColorLinks) )
-		quickLinkBtn.anchorX = 0
-
-		local function onHover( hover )
-			quickLinkBtn:setFillColor( unpack(hover and textColorSelected or textColorLinks) )
-		end		
-
-		addHoverObject(quickLinkBtn, onHover)
-
-		quickLinkBtn:addEventListener( "touch", function( event )
-			if event.phase == 'ended' then
-				onQuickLink(link)
-			end
-		end )
-
-
-		g_pointerLocations.quickLink[i] =
-		{
-			cursor = "pointingHand",
-			x = quickLinkBtn.x - (quickLinkBtn.anchorX * quickLinkBtn.contentWidth),
-			y = quickLinkBtn.y - (quickLinkBtn.anchorY * quickLinkBtn.contentHeight),
-			width = quickLinkBtn.contentWidth,
-			height = quickLinkBtn.contentHeight,
-		}
-		simulator.setCursorRect(g_pointerLocations.quickLink[i])
-
-	end
-end
-
-setupQuickLinks()
-
--- -----------------------------------------------------------------------------------------
--- -- RECENT NEWS
--- -----------------------------------------------------------------------------------------
-
-local latestGroup = display.newGroup( )
-
-local latestNews = display.newImageRect(latestGroup, "assets/groupNews.png", 17, 17)
-latestNews.x = 351
-latestNews.y = 500
-
-local latestNewsTitle = newRetinaText( "Latest News", latestNews.x+latestNews.contentWidth*0.5+5, quickLinks.y, fontSizeSections)
-latestGroup:insert(latestNewsTitle)
-latestNewsTitle.anchorX = 0
-latestNewsTitle:setFillColor(unpack(textColorNormal))
-
-
-latestGroup:insert( latestNewsLine )
-
-latestGroup.isVisible = false
 
 local function newTooltip(object, text )
 	local x = object.x + object.contentWidth*(0.5-object.anchorX)
@@ -564,103 +363,13 @@ local function newTooltip(object, text )
 	tooltip:insert( bgRc )
 	tooltip:insert( label )
 
-	local tooltipFadein = nil
 	local function tooltipObjectHover( hover )
-		if hover then
-			if not tooltipFadein then
-				tooltipFadein = transition.fadeIn( tooltip,  { time=200 } )	
-			end
-		else
-			tooltip.alpha = 0
-			if tooltipFadein then
-				transition.cancel( tooltipFadein )
-				tooltipFadein = nil
-			end
-		end
+		tooltip.isVisible = hover
 	end
-
 	addHoverObject(object, tooltipObjectHover)
 
 	return tooltip
 end
-
-local function loadFeedPanel(feedModificationDate, blogFeed)
-	if not (feedScroll == nil) then
-		feedScroll:removeSelf()
-		feedScroll = nil
-	end
-
-	if feedModificationDate then
-		-- If more than a month has passed since the news feed was updated, hide the "Latest News" panel
-		local numSecondsInAMonth = (60*60*24*30)
-		if (os.time() - feedModificationDate) > numSecondsInAMonth then
-			return
-		end
-	else
-		return
-	end
-
-	if not blogFeed or #blogFeed == 0 then
-		return
-	end
-
-	latestGroup.isVisible = true
-
-	local feedYs = {548, 585, 622}
-
-	for i = 1, #feedYs do
-		if blogFeed[i] then
-			local text = unescape(blogFeed[i].title)
-			local url = blogFeed[i].url:gsub('&#(%d+);', function(n) return string.char(n) end) -- fix broken URL encoding
-			if url:find('%?') then
-				url = url .. "&ref=homescreen"
-			else
-				url = url .. "?ref=homescreen"
-			end
-			
-			-- text = text .. ' ' .. text
-
-			local availableWidth = 280
-			local shortedText = limitDisplayLength(availableWidth, text, fontRegular, fontSizeLinkAndNews)
-
-			local newsItem = newRetinaText(shortedText, 344, feedYs[i], fontSizeLinkAndNews)
-			newsItem:setFillColor( unpack(textColorLinks) )
-			newsItem.anchorX = 0
-
-			if text ~= shortedText then
-				newTooltip(newsItem, text)
-			end
-
-			local function onHover( hover )
-				newsItem:setFillColor( unpack(hover and textColorSelected or textColorLinks) )
-			end		
-
-			addHoverObject(newsItem, onHover)
-
-			newsItem:addEventListener( "touch", function( e )
-				if e.phase == "ended" then
-					OpenURL( url, "newsfeed-item" )
-				end
-			end )
-			
-
-			g_pointerLocations.feeds[i] =
-			{
-				cursor = "pointingHand",
-				x = newsItem.x - (newsItem.anchorX * newsItem.contentWidth),
-				y = newsItem.y - (newsItem.anchorY * newsItem.contentHeight),
-				width = newsItem.contentWidth,
-				height = newsItem.contentHeight,
-			}
-			if g_currentTab == "tab1" then
-				simulator.setCursorRect(g_pointerLocations.feeds[i])
-			end
-
-		end
-	end
-
-end
-
 
 -- Parse a HTTP header date and return the number of seconds since the epoch
 local function parseHTTPDateFormat(dateStr)
@@ -699,37 +408,14 @@ local function parseHTTPDateFormat(dateStr)
 	return os.time{year=year, month=month, day=day, hour=0}
 end
 
-local function downloadFeeds()
-
-	-- DOWNLOAD BLOG FEED DATA AND DISPLAY IF SUCCESSFUL
-	local function networkListener( event )
-		local blogFeed
-		local feedModificationDate = 0
-		if not event.isError and event.status < 400 then
-			feedModificationDate = parseHTTPDateFormat(event.responseHeaders['Last-Modified'])
-			-- get from temporary directory (downloaded version) if no network error
-			local decodeJSON = function() blogFeed = json.decode( jsonFile( "feed.json", system.TemporaryDirectory ) ); end
-			pcall( decodeJSON )
-		end
-		loadFeedPanel(feedModificationDate, blogFeed)
-	end
-
-	network.download( "https://coronalabs.com/links/homescreen/feed.json?t="..tostring(os.time()), "GET", networkListener, "feed.json", system.TemporaryDirectory )
-end
-
--- wrap initial call in 1ms timer so network requests don't delay app launch as much
-timer.performWithDelay( 1, downloadFeeds )
-
-
 
 -- BUTTONS
-
 local function onNewProject()
 	if not uiTouchesDisabled then
 		disableTouches()
 		simulator.show( "new" )
 		simulator.analytics("welcome", "button", "New Project")
-		timer.performWithDelay( 500, enableTouches )
+		enableTouches()
 	end
 	return true
 end
@@ -742,7 +428,7 @@ local function onOpenProject()
 
 		simulator.show( "open" )
 		simulator.analytics("welcome", "button", "Open Project")
-		timer.performWithDelay( 500, enableTouches )
+		enableTouches()
 	end
 	return true
 end
@@ -845,8 +531,6 @@ addProjectButtons()
 -------------------
 -- Copyright Notice
 -------------------
-
-
 local copyright1 = newRetinaText("© 2020 Corona Labs Inc. ", 34, 675, fontSizeCopyright)
 copyright1:translate( copyright1.contentWidth*0.5, 0 )
 copyright1:setFillColor( unpack(textColorCopyright) )
@@ -987,7 +671,7 @@ local function createProjectActions(x, y, projectURL)
 		if not uiTouchesDisabled then
 			disableTouches()
 			simulator.show( "showSandbox", projectURL)
-			timer.performWithDelay( 500, enableTouches )
+			enableTouches()
 		end
 	end)
 
@@ -998,7 +682,7 @@ local function createProjectActions(x, y, projectURL)
 		if not uiTouchesDisabled then
 			disableTouches()
 			simulator.show( "showFiles", projectURL)
-			timer.performWithDelay( 500, enableTouches )
+			enableTouches()
 		end
 	end)
 
@@ -1008,7 +692,7 @@ local function createProjectActions(x, y, projectURL)
 		if not uiTouchesDisabled then
 			disableTouches()
 			simulator.show( "editProject", projectURL)
-			timer.performWithDelay( 500, enableTouches )
+			enableTouches()
 		end
 	end)
 
@@ -1018,7 +702,7 @@ local function createProjectActions(x, y, projectURL)
 		if not uiTouchesDisabled then
 			disableTouches()
 			simulator.show( "open", projectURL)
-			timer.performWithDelay( 500, enableTouches )
+			enableTouches()
 		end
 	end)
 
@@ -1287,16 +971,5 @@ function showRecents()
 	end
 end
 
-
-
 showRecents()
 Runtime:addEventListener( "_projectLoaded", showRecents )
-
-
------------------------------------------------------------------------------------------
-
--- Hide status bar, if it exists...
--- Do this at the end. TODO - why?
-if type( display.setStatusBar ) == "function" then
-	display.setStatusBar( display.HiddenStatusBar )
-end

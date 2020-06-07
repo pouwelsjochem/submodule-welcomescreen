@@ -21,7 +21,7 @@
 
 -- Usage:
 --
---	lua newproject.lua game (options: blank, composer, game, app, ebook)
+--	lua newproject.lua game (options: blank)
 --
 --	lua newproject.lua ebook width=320 height=480 ... (all other params listed below:)
 --
@@ -32,7 +32,6 @@
 --	scale=letterbox
 --	fps=30
 --	orientation=portrait
---	statusBarHidden=false
 --	hideIconShine=true
 --	exitOnSuspend=true
 --	savePath=output		-- path to save all template files, DO NOT include slash at end "/"
@@ -186,7 +185,6 @@ local function createBuildSettings( projectTemplate, buildSettingsFile, params )
 	local templateBase = params.templateBase or "" --system.ResourceDirectory
 	local orientation = params.orientation or "portrait"
 	--local supportedOrientations = params.supportedOrientations or { "portrait" }
-	local statusBarHidden = params.statusBarHidden or false
 	local hideIconShine = params.hideIconShine or true
 	local exitOnSuspend = params.exitOnSuspend or true
 	local savePath = params.savePath or "output"
@@ -218,7 +216,6 @@ local function createBuildSettings( projectTemplate, buildSettingsFile, params )
 	-- replace template 'tags' with parameters
 	template = string.gsub( template, "{ORIENTATION_DEFAULT}", '"' .. orientation .. '"' )
 	--template = string.gsub( template, "{ORIENTATION_SUPPORTED}", orientations )
-	template = string.gsub( template, "{PLIST_STATUSBAR}", tostring(statusBarHidden) )
 	template = string.gsub( template, "{PLIST_ICON}", tostring(hideIconShine) )
 	template = string.gsub( template, "{PLIST_EXITSUSPEND}", tostring(exitOnSuspend) )
 	

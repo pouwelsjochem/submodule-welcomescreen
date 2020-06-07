@@ -32,7 +32,7 @@ settings =
 		xcassets = "Images.xcassets",
 		plist =
 		{
-			UIStatusBarHidden = {PLIST_STATUSBAR},
+			UIStatusBarHidden = {true},
 			UILaunchStoryboardName = "LaunchScreen",
 		},
 	},
