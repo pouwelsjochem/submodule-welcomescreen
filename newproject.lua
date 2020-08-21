@@ -31,7 +31,6 @@
 --	height=480
 --	scale=letterbox
 --	fps=30
---	orientation=portrait
 --	hideIconShine=true
 --	exitOnSuspend=true
 --	savePath=output		-- path to save all template files, DO NOT include slash at end "/"
@@ -71,14 +70,6 @@ local function copyTemplateFiles( projectTemplate, savePath, baseDir, params )
 	local savePath = savePath or "output"
 	local width = params.width or "320"
 	local height = params.height or "480"
-	local orientation = params.orientation or "portrait"
-
-	-- if orientation isn't portrait, swap width and height
-	if orientation ~= "portrait" then
-		local tmp = width
-		width = height
-		height = tmp
-	end
 
 	-- copy all template files into output directory
 	for originalFilename in lfs.dir( srcDir ) do
@@ -183,8 +174,6 @@ local function createBuildSettings( projectTemplate, buildSettingsFile, params )
 	local projectTemplate = projectTemplate or "blank"
 	local buildSettingsFile = buildSettingsFile or "buildsettings_template.txt"
 	local templateBase = params.templateBase or "" --system.ResourceDirectory
-	local orientation = params.orientation or "portrait"
-	--local supportedOrientations = params.supportedOrientations or { "portrait" }
 	local hideIconShine = params.hideIconShine or true
 	local exitOnSuspend = params.exitOnSuspend or true
 	local savePath = params.savePath or "output"
@@ -203,19 +192,8 @@ local function createBuildSettings( projectTemplate, buildSettingsFile, params )
 	else
 		print("ERROR: Cannot open '"..templatePath.."' for reading")
 	end
-
-	-- take supported orientations table and create a string
-	--[[
-	local orientations = "{ "
-	for i=1,#supportedOrientations do
-		orientations = orientations .. '"' .. supportedOrientations[i] .. '", '
-	end
-	orientations = orientations .. " }"
-	--]]
 	
 	-- replace template 'tags' with parameters
-	template = string.gsub( template, "{ORIENTATION_DEFAULT}", '"' .. orientation .. '"' )
-	--template = string.gsub( template, "{ORIENTATION_SUPPORTED}", orientations )
 	template = string.gsub( template, "{PLIST_ICON}", tostring(hideIconShine) )
 	template = string.gsub( template, "{PLIST_EXITSUSPEND}", tostring(exitOnSuspend) )
 	
