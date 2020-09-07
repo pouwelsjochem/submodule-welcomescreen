@@ -11,13 +11,5 @@ application =
 		height = {CONTENT_HEIGHT}, 
 		scale = {CONTENT_SCALE},
 		fps = {CONTENT_FPS},
-		
-		--[[
-		imageSuffix =
-		{
-			    ["@2x"] = 2,
-			    ["@4x"] = 4,
-		},
-		--]]
 	},
 }
